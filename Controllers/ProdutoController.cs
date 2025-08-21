@@ -8,7 +8,7 @@ namespace MinhaAPI.Controllers
 {
     [ApiController] // Define a rota como Controller de API
     [Route("api/[controller]")] // api/Produto
-     
+
     public class ProdutoController : ControllerBase
     {
         private readonly AppDbContext _contextDb;
@@ -20,10 +20,10 @@ namespace MinhaAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll() { 
-        
+        public async Task<IActionResult> GetAll() {
+
             var produtos = await _contextDb.Produtos.ToListAsync();
-            return Ok(produtos); 
+            return Ok(produtos);
 
         }
 
@@ -45,7 +45,7 @@ namespace MinhaAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id) {
 
-            var produto = await _contextDb.Produtos.FindAsync(id);
+            Produto? produto = await _contextDb.Produtos.FindAsync(id);
 
             if (produto == null)
             {
@@ -56,8 +56,56 @@ namespace MinhaAPI.Controllers
             _contextDb.Produtos.Remove(produto);
             await _contextDb.SaveChangesAsync();
             return Ok("Produto deletado com sucesso");
-        
+
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] int id) {
+
+            Produto? produto = await _contextDb.Produtos.FindAsync(id);
+
+            if (produto == null)
+            {
+                return NotFound("Produto não encontrado!");
+            }
+
+            return Ok(produto);
+
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Produto produto) {
+
+            if (id != produto.Id)
+            {
+                return BadRequest("O Id enviado não corresponde ao id do produto no Banco de dados");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            bool exist = await _contextDb.Produtos.AnyAsync(p => p.Id == id);
+
+            if (!exist)
+            {
+                return NotFound(new { error = true, message = $"O produto com o id {id} não foi encontrado" });
+                
+            }
+
+            _contextDb.Entry(produto).State = EntityState.Modified;
+            await _contextDb.SaveChangesAsync();
+
+            return Ok(new { exist });
+
+
+
+        }
+
+
+
+
 
     }
 }
