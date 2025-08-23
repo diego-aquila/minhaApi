@@ -10,6 +10,8 @@ namespace MinhaAPI.Models
         [Required(ErrorMessage = "O nome é obrigatório")]
         public string Nome { get; set; } = string.Empty;
 
+        public int? Idade { get; set; }
+
         [StringLength(100, ErrorMessage = "O email deve ter no máximo 100 caracteres")]
         [Required(ErrorMessage = "O email é obrigatório")]
         public string Email { get; set; } = string.Empty;
