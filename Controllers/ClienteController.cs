@@ -21,9 +21,24 @@ namespace MinhaAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll() {
 
-            List<Cliente> clientes = await _appDbContext.Clientes
+            var clientes = await _appDbContext.Clientes
                 .Include(cliente => cliente.Enderecos)
-                .ToListAsync();
+                .Select(cliente => new { 
+
+                    Id = cliente.Id,
+                    Nome = cliente.Nome,
+                    Email = cliente.Email,
+                    Enderecos = cliente.Enderecos.Select(endereco => new { 
+                    
+                        Id = endereco.Id,
+                        Logradouro = endereco.Logradouro,
+                        Bairro = endereco.Bairro,
+                        Cidade = endereco.Cidade
+
+                    
+                    }).ToList()
+                
+                }).ToListAsync();
             return Ok(clientes);
         
         }
